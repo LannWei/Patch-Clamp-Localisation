@@ -20,8 +20,8 @@ pip install tensorboardx == 2.4
 pip install tensorboard_logger == 0.1.0
 ```
 
-# model training
+# Model training
 ```
-python Lan_model_train.py --gan_enhance 0 --eu_dist 3 --heatmap_sigma 10 --change_epoch_1 50 --change_epoch_2 100 --n_epochs 200
+python Lan_model_train.py --gan_enhance 1 --eu_dist 3 --heatmap_sigma 10 --change_epoch_1 50 --change_epoch_2 100 --n_epochs 200
 ```
 
