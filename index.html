@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>IceGAT</title>
+  <link rel="stylesheet" href="./static/css/normalize.min.css">
+  <link rel="stylesheet" href="./static/css/style.css">
+  <link rel="stylesheet" href="./static/css/iconfont.css">
+</head>
+<body>
+<!-- partial:index.partial.html -->
+  <header>
+    <div class="container">
+      <nav id="navigation">
+        <a href="#" class="logo"> </a>
+        <a aria-label="mobile menu" class="nav-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </a>
+          <ul class="menu-left">
+            <li><a href="#Abs">Abstract</a></li>
+            <li><a href="#FW">Framework</a></li>
+            <li><a href="#Perf">Performance</a></li>
+            <li><a href="#Video">Video</a></li>
+            <li><a href="#Code">Code</a></li>
+            <li><a href="#Contact">Contact</a></li>
+          </ul>
+      </nav>
+    </div>
+  </header>
+
+<section id="title">
+  <h1>Heatmap-Augmented Coarse-to-Fine Learning for Automatic In Vivo Patch Clamp Multi-Pipette Real-time Localisation</h1>
+  <!-- HTML结构 -->
+  <div class="authors-container">
+    <div class="authors-title">Authors</div>
+    <div class="authors-list">
+      <a href="#" class="author-name author-disabled">Lan Wei</a>
+      <a href="#" class="author-name author-disabled">Gema Vera Gonzalez</a>
+      <a href="#" class="author-name author-disabled">Phatsimo Kgwarae</a>
+      <a href="#" class="author-name author-disabled">Alexander Timms</a>
+      <a href="#" class="author-name author-disabled">Denis Zahorovsky</a>
+      <a href="https://www.schultzlab.org/" class="author-name">Simon Schultz</a>
+      <a href="https://www.intelligentrobotics-acrossscales.com/" class="author-name">Dandan Zhang</a>
+    </div>
+  </div>
+</section>
+
+<section id="Abs">
+<div class="container">
+  <h2>Abstract</h2>
+  <!-- Fig 1 -->
+  <figure id="fig1" class="scientific-figure">
+    <div class="figure-content">
+      <img src="./resource/Fig 1.png" alt="Fig 1" class="strict-image">
+    </div>
+    <figcaption class="scientific-caption">
+      Fig. 1 View of the <i>in vivo</i> multi pipettes under two-photon microscopy. White cross "x" is the position of the pipette tip.
+    </figcaption>
+  </figure>
+  <p style="text-align:justify;">
+    <i>In vivo</i> multi-pipette patch clamp is a crucial technique for neuroscience research into the interactions and network 
+    dynamics between multiple cells within a living organism. Inserting micropipettes into brain tissue inevitably causes mechanical 
+    strain and deformation. Visualizing them can guide pipette navigation and minimise the damage to the surrounding tissue. Current 
+    procedures heavily rely on expert manual operations, and low-resolution two-photon microscopy images further complicate pipette 
+    localisation. Moreover, existing pipette detection methods are mainly focused on <i>ex vivo</i> experiments and are limited to 
+    single-pipette usage.  
+  </p>
+  <p style="text-align:justify;">
+    To address these challenges, we propose the first multi-pipette, real-time localisation algorithm for <i>in vivo</i> patch clamp. 
+    Our approach begins with a Generative Adversarial Network (GAN)-based module that removes noise background from pipette images, 
+    enhancing overall clarity.  We then introduce a two-stage Transformer model that starts with predicting the coarse heatmap of the 
+    pipette tips, followed by the fine-grained coordination regression module for precise tip localisation. Specifically, the Hungarian 
+    algorithm is applied to find the minimal match between the predicted and true tips and get the permutation invariant loss for model 
+    training. Experimental results demonstrate that the proposed localisation method achieved <span class="math-number">>98%</span> accuracy 
+    within <span class="greek-letter">10,μm</span>, and <span class="math-number">>89%</span> accuracy within <span class="greek-letter">5,μm</span> 
+    for multi-pipette tips. The process of locating multipipette tips in one image takes an average of 0.001 seconds on the A100 GPU.
+  </p>
+  <p style="text-align:justify;">
+    <span style="font-weight: bold;">The main contributions of this paper include:</span>
+    <span class="definition-item">
+      <span class="number">1.</span>
+      <span>We successfully achieved real-time localisation of pipettes <i>in vivo</i> patch-clamp images, handling scenarios with a varying 
+        number of pipettes (1 to 4).</span>
+    </span>
+    <span class="definition-item">
+      <span class="number">2.</span>
+      <span>To address the challenges posed by dynamic, low-resolution two-photon images in living organisms, we developed a CycleGAN-based 
+        model that effectively eliminates background noise and enhances pipette tip visibility, improving detection accuracy.</span>
+    </span>
+    <span class="definition-item">
+      <span class="number">3.</span>
+      <span>We propose a hierarchical localisation framework that first employs a Transformer-based encoder to coarsely identify pipette tip 
+        regions. This is followed by a RedNet-based decoder, which precisely predicts the exact coordinates of the pipette tips.</span>
+    </span>
+    <span class="definition-item">
+      <span class="number">4.</span>
+      <span>We introduce an innovative permutation-invariant loss function, leveraging the Hungarian algorithm to construct a bipartite graph 
+        between predicted and ground-truth pipette tip locations, ensuring optimal matching for more efficient and robust model training.</span>
+    </span>
+  </p>
+  </div>
+</section>
+
+<section id="FW">
+  <div class="container">
+    <h2>Framework</h2>
+    <!-- Fig 2 -->
+    <figure id="fig2" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Fig 2.png" alt="Fig 2" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Fig 2. Framework Overview. </figcaption>
+    </figure>
+    <p style="text-align:justify;">
+      The model takes the original <i>in vivo</i> image as input and first applies cycleGAN to enhance pipette tip features. The 
+      enhanced image, augmented with positional embeddings, is then processed by the encoder, which predicts a coarse heatmap of 
+      pipette tip locations. Finally, the decoder refines these predictions, generating precise pipette tip coordinates through the 
+      finer coordination learner.
+    </p>
+    <!-- Fig 3 -->
+    <figure id="fig3" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Fig 3.png" alt="Fig 3" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Fig 3. Workflow of cycleGAN-based pipette tip feature enhancement.</figcaption>
+    </figure>
+    <p style="text-align:justify;">
+      A single pipette is first cropped from the <i>in vivo</i> two-photon microscopy images. CycleGAN is then applied to remove 
+      background noise, enhancing pipette tip visibility. Finally, the denoised single-pipette images are mapped back to their original 
+      positions while preserving the original pipette tip coordinate labels.
+  </div>
+</section>
+
+<section id="Perf">
+  <div class="container">
+    <h2>Performance</h2>
+    <!-- Table 1 -->
+    <figure id="table1" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Table 1.png" alt="Table 1" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Table 1: Comparison with State-of-the-Arts.</figcaption>
+    </figure>
+    <!-- Fig 4 -->
+    <figure id="fig4" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Fig 4.png" alt="Fig 4" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Fig 4. Comparison of pipette localization across images with varying numbers of pipettes (1 to 4).</figcaption>
+    </figure>
+    <p style="text-align:justify;">
+      <a href="#table1">Table 1</a> highlights the significant improvements achieved by our model across all baselines and accuracy metrics. 
+      Even at the smallest error threshold of <span class="greek-letter">3,μm</span>, our method outperforms the best baseline by 
+      <span class="math-number">17.93%</span>, demonstrating its superior prediction accuracy.
+    </p>
+    <p style="text-align:justify;">
+      <a href="#fig4">Fig. 4</a> provides a visual comparison of pipette tip localisation across images containing varying numbers of pipettes (1 to 4). 
+      The first row represents the simplest scenario with a single pipette, where all models accurately predict the tip position. 
+      However, as the number of pipettes increases, the baseline models struggle to correctly identify multiple tip locations, whereas 
+      our model maintains high localization accuracy. The last column of <a href="#fig4">Fig. 4</a> illustrates the heatmap predictions generated by our 
+      model, further emphasizing its precision in detecting pipette tips.
+    </p>
+    <p style="text-align:justify;">
+      We further measured the multi-pipette tips locating takes an average of 0.001 seconds on the A100 GPU which ensures real-time application of our method.
+    </p>
+    <!-- Table 2 -->
+    <figure id="table2" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Table 2.png" alt="table 2" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Table 2. Ablation of different blocks under the error range of 10\,$\mu m$.</figcaption>
+    </figure>
+    <p style="text-align:justify;">
+      To evaluate the contribution of each component in our model, we conduct ablation studies, as presented in <a href="#table2">Table 2</a>, under an error 
+      threshold of <span class="greek-letter">10,μm</span>. The result confirms that each of our design choices positively impacts the 
+      overall performance, with the combination of all components achieving the highest accuracy.
+    </p>
+  </div>
+</section>
+
+<section id="Video">
+  <div class="container">
+    <h2>Supplementary Video</h2>
+    <iframe id="videoFrame" width="100%" height="400" src="//www.youtube.com/embed/xlet8GihAR4?rel=0" frameborder="0" allowfullscreen></iframe>
+  </div>
+</section>
+
+<section id="Code">
+  <div class="container">
+    <h2>Code</h2>
+    <p><a style = "text-decoration: underline ; color :blue;"
+      href="https://github.com/LannWei/Patch-Clamp-Localisation" target="_blank">https://github.com/LannWei/Patch-Clamp-Localisation</a></p>
+  </div>
+</section>
+
+<section id="Contact">
+  <div class="container">
+  <h2>Contact</h2>
+  <p>If you have any questions, feel free to ask us via: <a href="mailto:l.wei24@imperial.ac.uk" style="color: #026CA6;">l.wei24@imperial.ac.uk</a> 
+    or <a href="mailto:d.zhang17@imperial.ac.uk" style="color: #026CA6;">d.zhang17@imperial.ac.uk</a>.</p>
+  </div>
+</section>
+<script  src="./static/js/jquery.min.js">  </script>
+<script  src="./static/js/jquery.easing.min.js">  </script>
+<script  src="./static/js/script.js">  </script>
+<script  src="./static/js/iconfont.js"></script>
+
+</body>
+</html>
