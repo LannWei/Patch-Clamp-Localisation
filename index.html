@@ -56,48 +56,40 @@
       <img src="./resource/motivation.png" alt="Fig 1" class="strict-image">
     </div>
     <figcaption class="scientific-caption">
-      Fig. 1 View of the <i>in vivo</i> multi pipettes under two-photon microscopy. White cross "x" is the position of the pipette tip.
+      Fig. 1 Concept overview of our coarse-to-fine learning approach for <i>in vivo</i> multi pipettes localisation under two-photon microscopy.
     </figcaption>
   </figure>
   <p style="text-align:justify;">
-    <i>In vivo</i> multi-pipette patch clamp is a crucial technique for neuroscience research into the interactions and network 
-    dynamics between multiple cells within a living organism. Inserting micropipettes into brain tissue inevitably causes mechanical 
-    strain and deformation. Visualizing them can guide pipette navigation and minimise the damage to the surrounding tissue. Current 
-    procedures heavily rely on expert manual operations, and low-resolution two-photon microscopy images further complicate pipette 
-    localisation. Moreover, existing pipette detection methods are mainly focused on <i>ex vivo</i> experiments and are limited to 
-    single-pipette usage.  
+    <i>In vivo</i> image-guided multi-pipette patch-clamp is essential for studying cellular interactions and network dynamics in neuroscience. However, current procedures mainly rely on manual expertise, which limits accessibility and scalability.  Robotic automation presents a promising solution, but achieving precise real-time detection of multiple pipettes remains a challenge. Existing methods focus on <i>ex vivo</i> experiments or single pipette use, making them inadequate for <i>in vivo</i> multi-pipette scenarios. 
   </p>
   <p style="text-align:justify;">
-    To address these challenges, we propose the first multi-pipette, real-time localisation algorithm for <i>in vivo</i> patch clamp. 
-    Our approach begins with a Generative Adversarial Network (GAN)-based module that removes noise background from pipette images, 
-    enhancing overall clarity.  We then introduce a two-stage Transformer model that starts with predicting the coarse heatmap of the 
-    pipette tips, followed by the fine-grained coordination regression module for precise tip localisation. Specifically, the Hungarian 
-    algorithm is applied to find the minimal match between the predicted and true tips and get the permutation invariant loss for model 
-    training. Experimental results demonstrate that the proposed localisation method achieved <span class="math-number">>98%</span> accuracy 
-    within <span class="greek-letter">10,μm</span>, and <span class="math-number">>89%</span> accuracy within <span class="greek-letter">5,μm</span> 
-    for multi-pipette tips. The process of locating multipipette tips in one image takes an average of 0.001 seconds on the A100 GPU.
+    To address these challenges, we propose a heatmap-augmented coarse-to-fine learning technique to facilitate multi-pipette real-time localisation for robot-assissted <i>in vivo</i> patch-clamp. More specifically, we introduce a Generative Adversarial Network (GAN)-based module to remove background noise and enhance pipette visibility. We then introduce a two-stage Transformer model that starts with predicting the coarse heatmap of the pipette tips, followed by the fine-grained coordination regression module for precise tip localisation. To ensure robust training, we use the Hungarian algorithm for optimal matching between the predicted and actual locations of tips.
+    Experimental results demonstrate that our method achieved <span class="math-number">> 98%</span> accuracy within <span class="greek-letter">10 μm</span>, and <span class="math-number">> 89%</span> accuracy within <span class="greek-letter">5 μm</span> for the localisation of multi-pipette tips. The average MSE is <span class="greek-letter">2.52 μm</span>. 
   </p>
   <p style="text-align:justify;">
     <span style="font-weight: bold;">The main contributions of this paper include:</span>
     <span class="definition-item">
       <span class="number">1.</span>
-      <span>We successfully achieved real-time localisation of pipettes <i>in vivo</i> patch-clamp images, handling scenarios with a varying 
-        number of pipettes (1 to 4).</span>
+      <span>We propose a novel coarse-to-fine localisation framework that employs a Transformer-based encoder to coarsely identify pipette tip regions first, followed by a ResNet-based decoder that precisely predicts their exact coordinates and improves pipette tips detection accuracy.
+      </span>
     </span>
     <span class="definition-item">
       <span class="number">2.</span>
-      <span>To address the challenges posed by dynamic, low-resolution two-photon images in living organisms, we developed a CycleGAN-based 
-        model that effectively eliminates background noise and enhances pipette tip visibility, improving detection accuracy.</span>
+      <span>
+        To address the challenges posed by dynamic, low-resolution two-photon images in living organisms, we developed a CycleGAN-based model that effectively eliminates background noise and enhances pipette tip visibility, improving detection accuracy.
+      </span>
     </span>
     <span class="definition-item">
       <span class="number">3.</span>
-      <span>We propose a hierarchical localisation framework that first employs a Transformer-based encoder to coarsely identify pipette tip 
-        regions. This is followed by a RedNet-based decoder, which precisely predicts the exact coordinates of the pipette tips.</span>
+      <span>
+        We introduce an innovative permutation-invariant loss function, leveraging the Hungarian algorithm to construct a bipartite graph between predicted and ground-truth pipette tip locations, ensuring optimal matching for efficient and robust model training.
+      </span>
     </span>
     <span class="definition-item">
       <span class="number">4.</span>
-      <span>We introduce an innovative permutation-invariant loss function, leveraging the Hungarian algorithm to construct a bipartite graph 
-        between predicted and ground-truth pipette tip locations, ensuring optimal matching for more efficient and robust model training.</span>
+      <span>
+        We evaluate our method on <i>in vivo</i> patch-clamp data with a varying number of pipettes (1 to 4), demonstrating superior performance over existing approaches.
+      </span>
     </span>
   </p>
   </div>
@@ -106,36 +98,60 @@
 <section id="FW">
   <div class="container">
     <h2>Framework</h2>
+    <p style="text-align:justify;">
+      <span style="font-weight: bold;">The workflow of the proposed method for multi-pipette tips localisation is illustrated as follows:</span>
+      <span class="definition-item">
+        <span class="number">1.</span>
+        <span>To reduce the domain gap between the patch-clamp image of <i>ex vivo</i> data and <i>in vivo</i> data, the CycleGAN model is used to translate the pipette images obtained from the live brain (<i>in vivo</i>) with a noisy background to the target domain (<i>ex vivo</i>) with a clear background.
+        </span>
+      </span>
+      <span class="definition-item">
+        <span class="number">2.</span>
+        <span>
+          A Vision Transformer (ViT) (encoder model) is used to predict the heatmap of the pipette tips' coarse positions.
+        </span>
+      </span>
+      <span class="definition-item">
+        <span class="number">3.</span>
+        <span>
+          The generated heatmap is fed to a ResNet-based decoder model to obtain the tips' coordination.
+        </span>
+      </span>
+    </p>
     <!-- Fig 2 -->
     <figure id="fig2" class="scientific-figure">
       <div class="figure-content">
         <img src="./resource/Fig 2.png" alt="Fig 2" class="strict-image">
       </div>
-      <figcaption class="scientific-caption">Fig 2. Framework Overview. </figcaption>
+      <figcaption class="scientific-caption">Fig 2. Framework Overview. The model takes the original <i>in vivo</i> image as input and first applies cycleGAN to enhance pipette tip features. The enhanced image, augmented with positional embeddings, is then processed by the encoder, which predicts a coarse heatmap of pipette tip locations. Finally, the decoder refines these predictions, generating precise pipette tip coordinates through the finer coordination learner. 
+      </figcaption>
     </figure>
-    <p style="text-align:justify;">
-      The model takes the original <i>in vivo</i> image as input and first applies cycleGAN to enhance pipette tip features. The 
-      enhanced image, augmented with positional embeddings, is then processed by the encoder, which predicts a coarse heatmap of 
-      pipette tip locations. Finally, the decoder refines these predictions, generating precise pipette tip coordinates through the 
-      finer coordination learner.
-    </p>
     <!-- Fig 3 -->
     <figure id="fig3" class="scientific-figure">
       <div class="figure-content">
         <img src="./resource/Fig 3.png" alt="Fig 3" class="strict-image">
       </div>
-      <figcaption class="scientific-caption">Fig 3. Workflow of cycleGAN-based pipette tip feature enhancement.</figcaption>
+      <figcaption class="scientific-caption">Fig 3. Workflow of cycleGAN-based pipette tip feature enhancement. 
+        A single pipette is first cropped from the <i>in vivo</i> two-photon microscopy images. 
+        CycleGAN is then applied to remove background noise, enhancing pipette tip visibility. 
+        Finally, the denoised single pipette images are mapped back to their original positions while preserving the original pipette tip coordinate labels.
+      </figcaption>
     </figure>
-    <p style="text-align:justify;">
+    <!-- <p style="text-align:justify;">
       A single pipette is first cropped from the <i>in vivo</i> two-photon microscopy images. CycleGAN is then applied to remove 
       background noise, enhancing pipette tip visibility. Finally, the denoised single-pipette images are mapped back to their original 
       positions while preserving the original pipette tip coordinate labels.
-  </div>
+  </div> -->
 </section>
 
 <section id="Perf">
   <div class="container">
     <h2>Performance</h2>
+    <p style="text-align:justify;">
+      <a href="#table1">Table 1</a> highlights the significant improvements achieved by our model across all baselines and accuracy metrics. 
+      Even at the smallest error threshold of <span class="greek-letter">3,μm</span>, our method outperforms the best baseline by 
+      <span class="math-number">17.93%</span>, demonstrating its superior prediction accuracy.
+    </p>
     <!-- Table 1 -->
     <figure id="table1" class="scientific-figure">
       <div class="figure-content">
@@ -144,46 +160,49 @@
       <figcaption class="scientific-caption">Table 1: Comparison with State-of-the-Arts.</figcaption>
     </figure>
     <!-- Fig 4 -->
+    <p style="text-align:justify;">
+      <a href="#fig4">Fig. 4</a> provides a visual comparison of pipette tip localisation across images containing varying numbers of pipettes (1 to 4). 
+      The first row represents the simplest scenario with a single pipette, where all models accurately predict the tip position. 
+      However, as the number of pipettes increases, the baseline models struggle to correctly identify multiple tip locations, whereas our model maintains high localization accuracy. The last column of <a href="#fig4">Fig. 4</a> illustrates the heatmap predictions generated by our model, further emphasizing its precision in detecting pipette tips.
+    </p>
     <figure id="fig4" class="scientific-figure">
       <div class="figure-content">
         <img src="./resource/sota_compare.png" alt="Fig 4" class="strict-image">
       </div>
       <figcaption class="scientific-caption">Fig 4. Comparison of pipette localization across images with varying numbers of pipettes (1 to 4).</figcaption>
     </figure>
+
     <p style="text-align:justify;">
-      <a href="#table1">Table 1</a> highlights the significant improvements achieved by our model across all baselines and accuracy metrics. 
-      Even at the smallest error threshold of <span class="greek-letter">3,μm</span>, our method outperforms the best baseline by 
-      <span class="math-number">17.93%</span>, demonstrating its superior prediction accuracy.
-    </p>
-    <p style="text-align:justify;">
-      <a href="#fig4">Fig. 4</a> provides a visual comparison of pipette tip localisation across images containing varying numbers of pipettes (1 to 4). 
-      The first row represents the simplest scenario with a single pipette, where all models accurately predict the tip position. 
-      However, as the number of pipettes increases, the baseline models struggle to correctly identify multiple tip locations, whereas 
-      our model maintains high localization accuracy. The last column of <a href="#fig4">Fig. 4</a> illustrates the heatmap predictions generated by our 
-      model, further emphasizing its precision in detecting pipette tips.
-    </p>
-    <p style="text-align:justify;">
-      We further measured the multi-pipette tips locating takes an average of 0.001 seconds on the A100 GPU which ensures real-time application of our method.
-    </p>
+      We evaluated the forward inference time of our model across different hardware configurations (CPU, GPU, and TPU) by running 100 iterations on a batch of images, as presented in <a href="#table3">Table 2</a>. 
+      The purpose of this comparison is to demonstrate the applicability of our model to different experimental setups with varying levels of computational power, highlighting the real-time performance that is crucial for robot-assisted <i>in vivo</i> patch-clamp.
+      Our results indicate that the multi-pipette tip localization process takes an average of 0.07 seconds on the CPU and 0.001 seconds on the RTX 4090 GPU. Resutls demonstrate the real-time capability of our method across various computing environments.
+    </p>    
+    <figure id="table3" class="scientific-figure">
+      <div class="figure-content">
+        <img src="./resource/Table 3.png" alt="Table 3" class="strict-image">
+      </div>
+      <figcaption class="scientific-caption">Table 2: Inference time across different hardware devices. .</figcaption>
+    </figure>
+
     <!-- Table 2 -->
+    <p style="text-align:justify;">
+      To evaluate the contribution of each component in our model, we conduct ablation studies, as presented in <a href="#table2">Table 3</a>, under an error 
+      threshold of <span class="greek-letter">10 μm</span>. The result confirms that each of our design choices positively impacts the 
+      overall performance, with the combination of all components achieving the highest accuracy.
+    </p>
     <figure id="table2" class="scientific-figure">
       <div class="figure-content">
         <img src="./resource/Table 2.png" alt="table 2" class="strict-image">
       </div>
-      <figcaption class="scientific-caption">Table 2. Ablation of different blocks under the error range of 10\,$\mu m$.</figcaption>
+      <figcaption class="scientific-caption">Table 3. Ablation of different blocks under the error range of <span class="greek-letter">10 μm</span>.</figcaption>
     </figure>
-    <p style="text-align:justify;">
-      To evaluate the contribution of each component in our model, we conduct ablation studies, as presented in <a href="#table2">Table 2</a>, under an error 
-      threshold of <span class="greek-letter">10,μm</span>. The result confirms that each of our design choices positively impacts the 
-      overall performance, with the combination of all components achieving the highest accuracy.
-    </p>
   </div>
 </section>
 
 <section id="Video">
   <div class="container">
     <h2>Supplementary Video</h2>
-    <iframe id="videoFrame" width="100%" height="400" src="https://youtu.be/tCrBOllIMAo?rel=0" frameborder="0" allowfullscreen></iframe>
+    <iframe id="videoFrame" width="100%" height="400" src="//www.youtube.com/embed/tCrBOllIMAo?rel=0" frameborder="0" allowfullscreen></iframe>
   </div>
 </section>
 
